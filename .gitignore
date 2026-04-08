@@ -4,3 +4,6 @@
 # Nested clones — track separately or as submodules (avoid duplicate .git / huge deps)
 savannah-portfolio/
 Portfolio/trendpulse-demo/
+
+# Separate GitHub Pages repo (own remote): content-launch-pad-site/
+content-launch-pad-site/
