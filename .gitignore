@@ -1,0 +1,6 @@
+.DS_Store
+.claude/
+
+# Nested clones — track separately or as submodules (avoid duplicate .git / huge deps)
+savannah-portfolio/
+Portfolio/trendpulse-demo/

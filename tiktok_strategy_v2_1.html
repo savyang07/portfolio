@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TikTok vs Instagram — The Graph War</title>
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --bg-card: #ffffff;
+    --bg-section: #efefed;
+    --text: #111111;
+    --text-secondary: #444444;
+    --text-muted: #888888;
+    --border: #d8d8d4;
+    --tt-red: #d4001a;
+    --tt-red-bg: #fff0f2;
+    --tt-red-border: #f5b3bc;
+    --ig-purple: #6b21a8;
+    --ig-purple-bg: #f5f0ff;
+    --ig-purple-border: #c4a8e8;
+    --amber: #b45309;
+    --amber-bg: #fffbeb;
+    --amber-border: #fcd34d;
+    --green: #166534;
+    --green-bg: #f0fdf4;
+    --green-border: #86efac;
+    --red-text: #991b1b;
+    --red-bg: #fff5f5;
+    --red-border: #fca5a5;
+    --teal: #0f766e;
+    --teal-bg: #f0fdfa;
+    --teal-border: #99f6e4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 56px 0 48px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 56px;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-size: clamp(30px, 4vw, 48px);
+    font-weight: bold;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+
+  h1 .tt { color: var(--tt-red); }
+  h1 .ig { color: var(--ig-purple); }
+
+  .header-desc {
+    font-size: 15px;
+    color: var(--text-secondary);
+    max-width: 580px;
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+
+  .header-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-size: 11px;
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    background: var(--bg-card);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── SECTIONS ── */
+  .section { margin-bottom: 60px; }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 0.14em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .section-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .section-sub {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    max-width: 640px;
+  }
+
+  /* ── BATTLE GRID ── */
+  .battle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .platform-card {
+    border-radius: 8px;
+    padding: 22px;
+    border: 1.5px solid;
+  }
+
+  .platform-card.tt {
+    background: var(--tt-red-bg);
+    border-color: var(--tt-red-border);
+  }
+
+  .platform-card.ig {
+    background: var(--ig-purple-bg);
+    border-color: var(--ig-purple-border);
+  }
+
+  .platform-name {
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+
+  .platform-card.tt .platform-name { color: var(--tt-red); }
+  .platform-card.ig .platform-name { color: var(--ig-purple); }
+
+  .platform-graph-tag {
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .platform-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  .platform-threat {
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding: 10px 12px;
+    border-radius: 6px;
+    background: rgba(0,0,0,0.04);
+    border: 1px solid rgba(0,0,0,0.08);
+    line-height: 1.5;
+  }
+
+  .platform-threat strong {
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text);
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .tension-bar {
+    background: var(--amber-bg);
+    border: 1.5px solid var(--amber-border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--amber);
+    line-height: 1.6;
+  }
+
+  .tension-bar strong { font-weight: bold; color: var(--amber); }
+
+  /* ── BLUSH GRID ── */
+  .blush-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .blush-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+
+  .blush-num {
+    font-size: 28px;
+    font-weight: bold;
+    color: #e0dfd9;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .blush-title {
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--text);
+    margin-bottom: 5px;
+  }
+
+  .blush-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  /* ── SIGNAL SPECTRUM ── */
+  .spectrum-track {
+    height: 10px;
+    border-radius: 5px;
+    background: linear-gradient(to right, #fca5a5, #fcd34d, #6ee7b7);
+    margin-bottom: 10px;
+  }
+
+  .spectrum-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 16px;
+  }
+
+  .signal-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .signal-pill {
+    font-size: 12px;
+    font-weight: bold;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1.5px solid;
+  }
+
+  .signal-pill.danger { background: var(--red-bg); border-color: var(--red-border); color: var(--red-text); }
+  .signal-pill.caution { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber); }
+  .signal-pill.safe { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+
+  .spectrum-rule {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--amber);
+    border-radius: 0 6px 6px 0;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .spectrum-rule strong { color: var(--text); font-weight: bold; }
+
+  /* ── GAP CARDS ── */
+  .gap-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .gap-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 4px solid;
+    border-radius: 0 8px 8px 0;
+    padding: 18px 20px;
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 14px;
+    align-items: start;
+  }
+
+  .gap-card.top { border-left-color: var(--tt-red); }
+  .gap-card.high { border-left-color: var(--amber); }
+  .gap-card.mid { border-left-color: var(--border); }
+
+  .gap-num {
+    font-size: 32px;
+    font-weight: bold;
+    color: #d8d8d4;
+    line-height: 1;
+    padding-top: 2px;
+  }
+
+  .gap-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text);
+    margin-bottom: 5px;
+  }
+
+  .gap-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+
+  .gap-desc em { font-style: italic; color: var(--text); }
+
+  .lever-badge {
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+
+  .lever-badge.top { background: var(--tt-red-bg); color: var(--tt-red); border: 1px solid var(--tt-red-border); }
+  .lever-badge.high { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+  .lever-badge.mid { background: var(--bg-section); color: var(--text-muted); border: 1px solid var(--border); }
+
+  .meta-box {
+    background: var(--bg-section);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+
+  .meta-box strong { color: var(--text); font-weight: bold; }
+  .meta-box .highlight { color: var(--amber); font-weight: bold; }
+
+  /* ── COMPARE ── */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .compare-col-label {
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 8px;
+  }
+
+  .compare-item {
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border: 1px solid;
+  }
+
+  .compare-item .ci-title { font-size: 13px; font-weight: bold; margin-bottom: 2px; }
+  .compare-item .ci-sub { font-size: 12px; }
+
+  .compare-item.win { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+  .compare-item.loss { background: var(--red-bg); border-color: var(--red-border); color: var(--red-text); }
+
+  .core-insight {
+    background: var(--amber-bg);
+    border: 1.5px solid var(--amber-border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--amber);
+    line-height: 1.65;
+  }
+
+  .core-insight strong { font-weight: bold; color: var(--amber); }
+
+  /* ── ANGLE CARDS ── */
+  .angle-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .angle-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    display: grid;
+    grid-template-columns: 30px 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+
+  .angle-letter {
+    font-size: 13px;
+    font-weight: bold;
+    background: var(--ig-purple-bg);
+    color: var(--ig-purple);
+    border: 1px solid var(--ig-purple-border);
+    border-radius: 6px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .angle-title {
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .angle-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+
+  /* ── FINAL FRAME ── */
+  .final-frame {
+    background: var(--text);
+    border-radius: 10px;
+    padding: 32px 36px;
+    margin-bottom: 60px;
+  }
+
+  .final-frame h3 {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 22px;
+  }
+
+  .final-points { display: flex; flex-direction: column; gap: 16px; }
+
+  .final-point {
+    display: grid;
+    grid-template-columns: 14px 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+
+  .fp-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 6px;
+  }
+
+  .fp-dot.red { background: #ff6b7a; }
+  .fp-dot.amber { background: #fbbf24; }
+  .fp-dot.teal { background: #34d399; }
+
+  .fp-text {
+    font-size: 13px;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.7;
+  }
+
+  .fp-text strong { color: #ffffff; font-weight: bold; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 20px 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  footer span {
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  @media (max-width: 580px) {
+    .battle-grid, .blush-grid, .compare-grid { grid-template-columns: 1fr; }
+    .gap-card { grid-template-columns: 36px 1fr; }
+    .gap-card .lever-badge { display: none; }
+    .final-frame { padding: 22px 20px; }
+    header { padding: 36px 0 32px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="eyebrow">Strategic Analysis &nbsp;·&nbsp; Social vs Interest Graph</div>
+    <h1>The Graph War:<br><span class="tt">TikTok</span> vs <span class="ig">Instagram</span></h1>
+    <p class="header-desc">Instagram is converging on TikTok's interest graph. TikTok can't win by copying Instagram's social graph. Here's what TikTok actually needs to build — and why the blush barrier, the signal intent problem, and broken sharing loops are the real battleground.</p>
+    <div class="header-tags">
+      <span class="tag">Interest Graph</span>
+      <span class="tag">Social Graph</span>
+      <span class="tag">Creator Economy</span>
+      <span class="tag">Product Strategy</span>
+      <span class="tag">User Behavior</span>
+    </div>
+  </header>
+
+  <!-- 01: BATTLE CONTEXT -->
+  <section class="section">
+    <div class="section-label">01 — Context</div>
+    <div class="section-title">Why this is a two-front war</div>
+    <p class="section-sub">Both platforms are encroaching on each other's core graph. The question is who gets there first — and at what cost to their identity.</p>
+
+    <div class="battle-grid">
+      <div class="platform-card tt">
+        <div class="platform-name">TikTok</div>
+        <div class="platform-graph-tag">Native: Interest Graph &nbsp;·&nbsp; Building: Social Graph</div>
+        <p class="platform-desc">Built from day one as a pure content discovery machine. The FYP is the product — not the people. Viral reach is possible for anyone with zero followers. The algorithm knows your uncensored self.</p>
+        <div class="platform-threat">
+          <strong>Vulnerability</strong>
+          No sticky social layer. Users don't add friends, don't share in-app, don't build relationships. When content quality parity hits, there's no social switching cost keeping users here.
+        </div>
+      </div>
+      <div class="platform-card ig">
+        <div class="platform-name">Instagram</div>
+        <div class="platform-graph-tag">Native: Social Graph &nbsp;·&nbsp; Building: Interest Graph</div>
+        <p class="platform-desc">Built on follow graphs and social identity. Reels is now algorithmically driven, showing content from accounts you've never followed. Blend, shared feeds, and creator tools are closing the gap fast.</p>
+        <div class="platform-threat">
+          <strong>Vulnerability</strong>
+          Interest graph is still weaker — but the social graph gives Instagram a retention floor TikTok doesn't have. Lose your IG friends and you lose a decade of social history.
+        </div>
+      </div>
+    </div>
+
+    <div class="tension-bar">
+      <strong>The core tension:</strong> TikTok's interest graph is its moat — but Instagram is copying it. TikTok needs a social layer that doesn't destroy what makes it TikTok in the first place.
+    </div>
+  </section>
+
+  <!-- 02: BLUSH BARRIER -->
+  <section class="section">
+    <div class="section-label">02 — Root Problem</div>
+    <div class="section-title">The blush barrier — why users won't build social graphs on TikTok</div>
+    <p class="section-sub">TikTok's interest graph works because it reveals your unperformed self. Adding friends collapses that safety. Five root causes:</p>
+
+    <div class="blush-grid">
+      <div class="blush-card">
+        <div class="blush-num">01</div>
+        <div class="blush-title">Context collapse anxiety</div>
+        <div class="blush-desc">Your "weird" side — niche fandoms, emotional content, cringe humor — feels safe only when strangers watch. Friends carry memories. They judge with context.</div>
+      </div>
+      <div class="blush-card">
+        <div class="blush-num">02</div>
+        <div class="blush-title">Watch history as a confession</div>
+        <div class="blush-desc">What you like and save reveals your inner life. 40 breakup videos at 2am. Your ex seeing that activity feels more invasive than any DM.</div>
+      </div>
+      <div class="blush-card">
+        <div class="blush-num">03</div>
+        <div class="blush-title">Creator vulnerability asymmetry</div>
+        <div class="blush-desc">Posting to strangers = performing to an imagined audience. Sharing with friends = showing a version of yourself you haven't rehearsed with them yet.</div>
+      </div>
+      <div class="blush-card">
+        <div class="blush-num">04</div>
+        <div class="blush-title">The algorithm knows too much</div>
+        <div class="blush-desc">The FYP is a behavioral portrait. If TikTok knows you're struggling or obsessed with something embarrassing, friends seeing your activity = exposure.</div>
+      </div>
+      <div class="blush-card" style="grid-column: 1 / -1;">
+        <div class="blush-num">05</div>
+        <div class="blush-title">No existing social norm to add people here</div>
+        <div class="blush-desc">Instagram launched as a social product — the "find your friends" habit is baked in. TikTok's default mental model is "watch content." No ingrained habit exists for adding people, so nobody does it by default.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03: SIGNAL SPECTRUM -->
+  <section class="section">
+    <div class="section-label">03 — Design Constraint</div>
+    <div class="section-title">The signal intent spectrum</div>
+    <p class="section-sub">Not all TikTok data is equal. Features that work without triggering the blush barrier are those built on signals users already chose to emit — not passive watch behavior.</p>
+
+    <div style="margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+        <span style="font-size: 11px; font-weight: bold; color: var(--red-text); text-transform: uppercase; letter-spacing: 0.06em;">Do not use for social features</span>
+        <span style="font-size: 11px; font-weight: bold; color: var(--green); text-transform: uppercase; letter-spacing: 0.06em;">Safe to use</span>
+      </div>
+      <div class="spectrum-track"></div>
+      <div class="spectrum-labels">
+        <span>Passive &nbsp;·&nbsp; involuntary</span>
+        <span>Active &nbsp;·&nbsp; intentional</span>
+      </div>
+      <div class="signal-pills">
+        <span class="signal-pill danger">Watch time</span>
+        <span class="signal-pill danger">FYP topics</span>
+        <span class="signal-pill danger">Loops / replays</span>
+        <span class="signal-pill caution">Likes</span>
+        <span class="signal-pill caution">Comments</span>
+        <span class="signal-pill caution">Follows</span>
+        <span class="signal-pill safe">Saves</span>
+        <span class="signal-pill safe">Shares</span>
+        <span class="signal-pill safe">Duets / stitches</span>
+      </div>
+      <div class="spectrum-rule">
+        <strong>The rule:</strong> Any social feature reading passive signals (watch history, FYP overlap, loop behavior) will feel like surveillance. Features built on saves, shares, and duets feel like connection — because the user consciously chose to emit that signal.
+      </div>
+    </div>
+  </section>
+
+  <!-- 04: 6 GAPS -->
+  <section class="section">
+    <div class="section-label">04 — Opportunity Map</div>
+    <div class="section-title">5 genuine gaps — ranked by leverage</div>
+    <p class="section-sub">What TikTok is actually missing. Not feature clones of Instagram — structurally different things that only the interest graph can enable.</p>
+
+    <div class="gap-list">
+
+      <div class="gap-card top">
+        <div class="gap-num">1</div>
+        <div>
+          <div class="gap-title">Taste compatibility reveal on friend-add</div>
+          <div class="gap-desc">Right now, adding a friend on TikTok gives you zero new information. The moment is completely empty. Compare to Spotify Friend Activity — you add someone and immediately learn something real about them. TikTok has all the signal (saves, shares, duets) but surfaces none of it socially. <em>A "you and [friend] both obsess over [very specific niche]" reveal moment at friend-add would be the single highest-leverage feature they're missing.</em></div>
+        </div>
+        <span class="lever-badge top">Highest</span>
+      </div>
+
+      <div class="gap-card high">
+        <div class="gap-num">2</div>
+        <div>
+          <div class="gap-title">Friend-influenced FYP signal (opt-in only)</div>
+          <div class="gap-desc">TikTok's FYP currently ignores your social graph almost entirely. If your friend saves something repeatedly, that's a stronger taste signal than most things TikTok knows about you — and you never see it. A "your circle saved this" badge (opt-in, saves only, never watch history) reframes friend-adding from social exposure to <em>algorithmic upgrade.</em> The value prop becomes: better FYP, not social performance.</div>
+        </div>
+        <span class="lever-badge high">High</span>
+      </div>
+
+      <div class="gap-card mid">
+        <div class="gap-num">3</div>
+        <div>
+          <div class="gap-title">Ambient co-watching with reaction layer</div>
+          <div class="gap-desc">Not a watch party. Something more ambient — a soft indicator that a friend is also scrolling right now, with a nudge-to-share gesture that lets them react in real time via emoji or voice. This mimics the "texting a friend while watching" behavior that already happens over iMessage. TikTok should own that loop, not let it leak offplatform.</div>
+        </div>
+        <span class="lever-badge mid">Medium</span>
+      </div>
+
+      <div class="gap-card mid">
+        <div class="gap-num">4</div>
+        <div>
+          <div class="gap-title">Creator inner-circle access as social reward</div>
+          <div class="gap-desc">Currently there's no reason for creators to invite close friends into their TikTok world — it only creates exposure risk. Flip this: give creators a "close friends" tier where inner-circle followers get early drafts, BTS clips, unpolished takes. The friend connection becomes a key — not a window into your embarrassing watch history.</div>
+        </div>
+        <span class="lever-badge mid">Medium</span>
+      </div>
+
+      <div class="gap-card mid">
+        <div class="gap-num">5</div>
+        <div>
+          <div class="gap-title">Social accountability within LIVE</div>
+          <div class="gap-desc">A "watch this LIVE with me" invite mechanic — a friend pings you into a LIVE they're already in. You're not just watching, you're "in the room" together. This creates a social graph within LIVE streams that's naturally more trust-based than anonymous gifting from strangers.</div>
+        </div>
+        <span class="lever-badge mid">Niche</span>
+      </div>
+
+    </div>
+
+    <div class="meta-box">
+      <strong>The meta-pattern:</strong> Every existing TikTok social feature is passive — shared feed, follows, friend suggestions. None create a moment where adding a friend gives you something new and active right now. <span class="highlight">The unlock is making the social graph feel like a product feature, not a relationship declaration.</span>
+    </div>
+  </section>
+
+  <!-- 05: SHARING -->
+  <section class="section">
+    <div class="section-label">05 — Behavior Leakage</div>
+    <div class="section-title">Fixing in-app sharing without competing against iMessage</div>
+    <p class="section-sub">TikTok has group chats, Shared Collections, and Shared Feed. Users still reach for iMessage. The problem isn't feature quality — it's that TikTok is fighting the wrong battle entirely.</p>
+
+    <div class="compare-grid">
+      <div>
+        <div class="compare-col-label">iMessage share</div>
+        <div class="compare-item win">
+          <div class="ci-title">Instant delivery</div>
+          <div class="ci-sub">Primary notification stream, zero friction</div>
+        </div>
+        <div class="compare-item win">
+          <div class="ci-title">Stays in context</div>
+          <div class="ci-sub">Existing chat thread, no app switch needed</div>
+        </div>
+        <div class="compare-item win">
+          <div class="ci-title">Reaction is natural</div>
+          <div class="ci-sub">Reply flows in the same thread immediately</div>
+        </div>
+        <div class="compare-item win">
+          <div class="ci-title">Group share is trivial</div>
+          <div class="ci-sub">Existing groups, zero setup cost</div>
+        </div>
+      </div>
+      <div>
+        <div class="compare-col-label">TikTok DM share</div>
+        <div class="compare-item loss">
+          <div class="ci-title">Recipient may never see it</div>
+          <div class="ci-sub">TikTok DM notifications frequently ignored</div>
+        </div>
+        <div class="compare-item loss">
+          <div class="ci-title">Context switch required</div>
+          <div class="ci-sub">Open TikTok → find DMs → find person</div>
+        </div>
+        <div class="compare-item loss">
+          <div class="ci-title">Reaction is awkward</div>
+          <div class="ci-sub">DM reply disconnected from the video itself</div>
+        </div>
+        <div class="compare-item loss">
+          <div class="ci-title">Group share needs setup</div>
+          <div class="ci-sub">Need right people already in a TikTok group chat</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="core-insight">
+      <strong>The real problem:</strong> TikTok DMs are competing with iMessage as a messenger — and they will always lose that fight. The right question isn't "how do we make DMs better?" It's <strong>"what can in-app sharing do that external sharing literally cannot?"</strong>
+    </div>
+
+    <div class="angle-list">
+      <div class="angle-card">
+        <div class="angle-letter">A</div>
+        <div>
+          <div class="angle-title">Make the share moment itself the reaction</div>
+          <div class="angle-desc">Share video → friend gets notification → they watch alone → maybe they text you back. The reaction loop is broken and slow. What if sharing opened a lightweight reaction layer — emoji, voice snippet, face cam — attached to the video itself? The share becomes a shared experience, not a forwarded link. iMessage literally cannot replicate this.</div>
+        </div>
+      </div>
+      <div class="angle-card">
+        <div class="angle-letter">B</div>
+        <div>
+          <div class="angle-title">Creator-side incentive for in-app shares</div>
+          <div class="angle-desc">External shares are invisible to TikTok's algorithm and give creators zero signal. In-app shares could unlock creator perks — distribution boosts, analytics visibility, gifting prompts. Creators then actively encourage in-app sharing in their CTAs, pulling the behavior back on-platform. A pull mechanism, not just a push one.</div>
+        </div>
+      </div>
+      <div class="angle-card">
+        <div class="angle-letter">C</div>
+        <div>
+          <div class="angle-title">"Send with context" — video arrives enriched</div>
+          <div class="angle-desc">Add a pre-attached reaction before sending — a voice memo, an emoji that plays first, a poll ("which one of us would do this?"). The video arrives as a richer object than just a link. The friction of adding context is the feature — it makes the share feel intentional and personal, not just forwarded.</div>
+        </div>
+      </div>
+      <div class="angle-card">
+        <div class="angle-letter">D</div>
+        <div>
+          <div class="angle-title">Intercept the external share moment</div>
+          <div class="angle-desc">When you tap the external share button and the iOS share sheet opens, TikTok surfaces itself at the top as "send with reaction in TikTok" — a distinct premium option, not just a duplicate. Makes in-app sharing feel like the upgrade. Captures the user at peak intent before they leave the app.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL FRAME -->
+  <section class="section">
+    <div class="final-frame">
+      <h3>TikTok's actual competitive strategy against Instagram</h3>
+      <div class="final-points">
+        <div class="final-point">
+          <div class="fp-dot red"></div>
+          <div class="fp-text"><strong>Don't build Instagram's social graph.</strong> Build a taste-based graph — connections formed through shared niche obsessions, not IRL relationships. The warm stranger tier, the co-watcher concept, and the taste compatibility reveal are all expressions of this. It's a different kind of social graph that Instagram can't replicate without destroying what Instagram is.</div>
+        </div>
+        <div class="final-point">
+          <div class="fp-dot amber"></div>
+          <div class="fp-text"><strong>Use saves and shares as the data layer, not watch history.</strong> The blush barrier is real and permanent. Any feature that exposes passive behavior will fail. The features that can work are those where users already chose to signal intent. Saves are the clean layer — use them for taste compatibility, FYP social signal, and friend discovery.</div>
+        </div>
+        <div class="final-point">
+          <div class="fp-dot teal"></div>
+          <div class="fp-text"><strong>Make the social graph feel functional, not social.</strong> Adding friends on TikTok should feel like upgrading your algorithm, not performing a relationship. The reframe from "social" to "functional" removes the psychological cost of adding people. Instagram can't offer this framing — their social graph is inherently performative. TikTok's can be genuinely useful.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>TikTok Product Strategy Analysis</span>
+    <span>Interest Graph &nbsp;·&nbsp; Social Graph &nbsp;·&nbsp; Creator Economy</span>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrendPulse Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8f8fa;padding:1.5rem;color:#111}
+.page{max-width:900px;margin:0 auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.logo{font-size:16px;font-weight:600;color:#111}
+.logo span{color:#534AB7}
+.avatar{width:32px;height:32px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#3C3489}
+.niche-badge{font-size:11px;padding:3px 10px;border-radius:20px;background:#f1f1f4;color:#666;border:0.5px solid #ddd}
+.section-label{font-size:10px;font-weight:600;color:#999;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.65rem}
+.digest-card{background:#fff;border:0.5px solid #e8e8ec;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.25rem}
+.digest-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.digest-title{font-size:13px;font-weight:600;color:#111}
+.week-chip{font-size:10px;padding:3px 9px;border-radius:20px;background:#EEEDFE;color:#534AB7}
+.digest-row{display:flex;align-items:flex-start;gap:9px;padding:6px 0;border-bottom:0.5px solid #f0f0f4}
+.digest-row:last-child{border-bottom:none;padding-bottom:0}
+.dot{width:5px;height:5px;border-radius:50%;margin-top:6px;flex-shrink:0}
+.d-p{background:#534AB7}.d-t{background:#1D9E75}.d-a{background:#BA7517}
+.digest-text{font-size:12px;color:#555;line-height:1.5}
+.digest-text strong{color:#111;font-weight:500}
+.trend-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-bottom:1.25rem}
+.trend-card{background:#fff;border:0.5px solid #e8e8ec;border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.trend-card:hover{border-color:#AFA9EC;box-shadow:0 2px 8px rgba(83,74,183,.08)}
+.trend-card.active{border:1.5px solid #534AB7}
+.tc-thumb{height:76px;display:flex;align-items:center;justify-content:center;position:relative}
+.tp{background:#EEEDFE}.tt{background:#E1F5EE}.ta{background:#FAEEDA}.tk{background:#FBEAF0}
+.vel{position:absolute;top:6px;right:6px;font-size:9px;font-weight:600;padding:2px 6px;border-radius:10px}
+.vel-r{background:#E1F5EE;color:#0F6E56}.vel-p{background:#FAEEDA;color:#854F0B}
+.tc-body{padding:8px 10px 10px}
+.tc-name{font-size:12px;font-weight:600;color:#111;margin-bottom:2px;line-height:1.3}
+.tc-meta{font-size:10px;color:#999;margin-bottom:6px}
+.bar-bg{height:2px;background:#f0f0f4;border-radius:2px}
+.bar-fill{height:2px;border-radius:2px}
+.bp{background:#534AB7}.bt{background:#1D9E75}.ba{background:#BA7517}.bk{background:#D4537E}
+.bar-label{font-size:9px;color:#999;margin-top:2px}
+.expanded-panel{background:#fff;border:1.5px solid #534AB7;border-radius:12px;margin-bottom:1.25rem;overflow:hidden;display:none}
+.expanded-panel.open{display:block}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.1rem;border-bottom:0.5px solid #f0f0f4}
+.ph-title{font-size:13px;font-weight:600;color:#111}
+.tabs{display:flex;gap:4px}
+.tab{font-size:11px;padding:4px 11px;border-radius:20px;border:0.5px solid #e8e8ec;background:transparent;color:#888;cursor:pointer}
+.tab.on{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.sec{display:none;padding:.9rem 1.1rem}
+.sec.on{display:block}
+.hint{font-size:11px;color:#999;font-style:italic;margin-bottom:.7rem}
+.hrow{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin}
+.hrow::-webkit-scrollbar{height:3px}
+.hrow::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px}
+.vc{width:128px;flex-shrink:0;cursor:pointer}
+.vt{width:128px;height:172px;border-radius:8px;border:0.5px solid #e8e8ec;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;transition:transform .15s,border-color .15s}
+.vc:hover .vt{transform:scale(1.04);border-color:#AFA9EC}
+.vbg1{background:#EEEDFE}.vbg2{background:#E1F5EE}.vbg3{background:#FAEEDA}.vbg4{background:#FBEAF0}.vbg5{background:#E6F1FB}.vbg6{background:#EAF3DE}
+.vhov{position:absolute;inset:0;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;transition:background .15s}
+.vc:hover .vhov{background:rgba(0,0,0,0.18)}
+.play{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.75);transition:opacity .15s,transform .15s}
+.vc:hover .play{opacity:1;transform:scale(1)}
+.vviews{position:absolute;bottom:5px;left:5px;font-size:9px;font-weight:600;padding:2px 5px;border-radius:5px;background:rgba(0,0,0,.18);color:#fff}
+.vplat{position:absolute;top:5px;left:5px;font-size:8px;font-weight:600;padding:2px 5px;border-radius:5px}
+.plt-tt{background:#EEEDFE;color:#3C3489}.plt-ig{background:#FBEAF0;color:#993556}
+.vmatch{position:absolute;top:5px;right:5px;font-size:8px;font-weight:600;padding:2px 5px;border-radius:5px;background:#E1F5EE;color:#0F6E56}
+.vhandle{font-size:10px;color:#888;margin-top:4px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.vcap{font-size:10px;color:#333;margin-top:2px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.brief-box{background:#f8f8fc;border-radius:8px;padding:.7rem 1rem;margin-top:.5rem}
+.blbl{font-size:10px;font-weight:600;color:#888;margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em}
+.btext{font-size:12px;color:#333;line-height:1.6}
+.hook{font-size:12px;color:#3C3489;font-weight:500;font-style:italic}
+.script-btn{margin-top:.7rem;font-size:11px;padding:5px 13px;border-radius:8px;border:0.5px solid #AFA9EC;background:#EEEDFE;color:#3C3489;cursor:pointer}
+.drow{display:flex;gap:12px;margin-bottom:9px}
+.dlbl{font-size:10px;font-weight:600;color:#888;width:105px;flex-shrink:0;padding-top:2px}
+.dval{font-size:12px;color:#333}
+.agent-card{background:#fff;border:0.5px solid #e8e8ec;border-radius:12px;padding:1rem 1.25rem}
+.sug{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:0.5px solid #f0f0f4}
+.sug:last-child{border-bottom:none;padding-bottom:0}
+.sicon{width:28px;height:28px;border-radius:6px;background:#f4f4f8;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px}
+.stext{font-size:12px;color:#444;line-height:1.5}
+.sact{font-weight:600;color:#534AB7}
+.scta{display:flex;gap:6px;margin-top:5px;align-items:center}
+.sbtn{font-size:10px;padding:3px 9px;border-radius:8px;border:0.5px solid #ddd;background:transparent;color:#333;cursor:pointer}
+.sbtn:hover{background:#f4f4f8}
+.tbpair{display:flex;gap:6px}
+.tb{width:26px;height:26px;border-radius:6px;border:0.5px solid #ddd;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px}
+.tb.uon{background:#E1F5EE;border-color:#5DCAA5}
+.tb.don{background:#FBEAF0;border-color:#ED93B1}
+.xbtn{font-size:11px;padding:3px 9px;border-radius:8px;border:0.5px solid #e8e8ec;background:transparent;color:#999;cursor:pointer}
+
+/* FEED OVERLAY */
+.feed-ov{display:none;background:rgba(0,0,0,.84);border-radius:12px;margin-bottom:1.25rem;padding:1.25rem 1rem 1rem;flex-direction:column;align-items:center;gap:.75rem;min-height:700px}
+.feed-ov.open{display:flex}
+.ftop{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:310px}
+.fpill{font-size:11px;font-weight:500;padding:4px 11px;border-radius:20px;background:rgba(124,110,247,.22);color:#c4bfff;border:0.5px solid rgba(124,110,247,.3)}
+.fexit{font-size:11px;padding:4px 11px;border-radius:8px;border:0.5px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.65);cursor:pointer}
+.fexit:hover{background:rgba(255,255,255,.07)}
+.phone{width:300px;height:560px;border-radius:36px;border:2px solid rgba(255,255,255,.1);background:#111;overflow:hidden;position:relative;flex-shrink:0}
+.pnotch{width:80px;height:22px;background:#111;border-radius:0 0 14px 14px;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:10}
+.pscreen{width:100%;height:100%;overflow:hidden}
+.vfeed{width:100%;height:100%;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none}
+.vfeed::-webkit-scrollbar{display:none}
+.vslide{width:100%;height:560px;scroll-snap-align:start;position:relative;display:flex;align-items:flex-end;flex-shrink:0}
+.vsbg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:64px}
+.sb1{background:#1a1040}.sb2{background:#0d2b1f}.sb3{background:#291800}.sb4{background:#1f0d17}.sb5{background:#0d1b2b}.sb6{background:#131f06}
+.vsgrad{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.76) 0%,transparent 55%)}
+.pips{display:flex;gap:3px;position:absolute;top:28px;left:0;right:0;padding:0 12px;z-index:5}
+.pip{height:2px;flex:1;border-radius:2px;background:rgba(255,255,255,.28)}
+.pip.on{background:#fff}
+.vacts{position:absolute;right:10px;bottom:60px;z-index:3;display:flex;flex-direction:column;align-items:center;gap:14px}
+.vact{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+.vact-ic{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.13);display:flex;align-items:center;justify-content:center;font-size:15px}
+.vact-lb{font-size:9px;color:rgba(255,255,255,.75)}
+.vcont{position:relative;z-index:2;padding:12px 12px 52px;width:100%}
+.vhand{font-size:12px;font-weight:600;color:#fff;margin-bottom:3px}
+.vcap2{font-size:11px;color:rgba(255,255,255,.85);line-height:1.4;margin-bottom:6px}
+.vsnd{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(255,255,255,.6)}
+.vsnd-d{width:5px;height:5px;border-radius:50%;background:#7F77DD;flex-shrink:0}
+.vbdgs{display:flex;gap:5px;margin-bottom:5px;flex-wrap:wrap}
+.vb{font-size:9px;font-weight:600;padding:2px 7px;border-radius:10px}
+.vbm{background:rgba(29,158,117,.82);color:#fff}
+.vbtt{background:rgba(83,74,183,.82);color:#fff}
+.vbig{background:rgba(153,53,86,.82);color:#fff}
+.vbor{background:rgba(186,117,23,.82);color:#fff}
+.vinspo{position:absolute;bottom:12px;left:12px;right:56px;z-index:3}
+.vinspo-btn{width:100%;font-size:11px;font-weight:600;padding:7px 12px;border-radius:8px;border:none;background:#534AB7;color:#fff;cursor:pointer;text-align:left}
+.vinspo-btn:hover{background:#3C3489}
+.endslide{width:100%;height:560px;scroll-snap-align:start;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#0c0c14;flex-shrink:0;padding:24px}
+.endcheck{width:40px;height:40px;border-radius:50%;background:rgba(83,74,183,.18);border:1.5px solid rgba(124,110,247,.45);display:flex;align-items:center;justify-content:center;font-size:18px;color:#c4bfff;margin-bottom:4px}
+.endtitle{font-size:14px;font-weight:600;color:#fff;text-align:center}
+.endsub{font-size:11px;color:rgba(255,255,255,.42);text-align:center;line-height:1.6;max-width:210px}
+.endback{margin-top:10px;font-size:12px;font-weight:500;padding:8px 20px;border-radius:8px;border:0.5px solid rgba(124,110,247,.42);background:rgba(124,110,247,.1);color:#c4bfff;cursor:pointer}
+.endback:hover{background:rgba(124,110,247,.2)}
+.navrow{display:flex;align-items:center;gap:10px}
+.navbtn{font-size:11px;padding:5px 14px;border-radius:8px;border:0.5px solid rgba(255,255,255,.18);background:transparent;color:rgba(255,255,255,.6);cursor:pointer}
+.navbtn:hover{background:rgba(255,255,255,.07)}
+.navctr{font-size:11px;color:rgba(255,255,255,.38);min-width:44px;text-align:center}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="avatar">JK</div>
+      <div class="logo">Trend<span>Pulse</span></div>
+      <div class="niche-badge">Gaming / Commentary</div>
+    </div>
+    <div style="font-size:11px;color:#999">Updated 2h ago</div>
+  </div>
+
+  <div class="section-label">Weekly digest</div>
+  <div class="digest-card">
+    <div class="digest-head"><div class="digest-title">Your week at a glance</div><div class="week-chip">Mar 17–23</div></div>
+    <div class="digest-row"><div class="dot d-p"></div><div class="digest-text">Top sound: <strong>"Neon Bleed" by Glitch Era</strong> — 2.4M uses, up 310%</div></div>
+    <div class="digest-row"><div class="dot d-t"></div><div class="digest-text">Emerging: <strong>Reaction + breakdown split-screen</strong> — fits your style</div></div>
+    <div class="digest-row"><div class="dot d-a"></div><div class="digest-text">Sleeping on: <strong>"AI NPC" challenge</strong> — early window, low competition</div></div>
+    <div class="digest-row"><div class="dot d-p"></div><div class="digest-text">Your best format: <strong>60s explainer</strong> — 4.1× avg completion rate</div></div>
+  </div>
+
+  <div class="section-label">Trending now for you</div>
+  <div class="trend-grid">
+    <div class="trend-card active" id="card-1" onclick="openPanel(1)"><div class="tc-thumb tp"><span style="font-size:26px">🎮</span><div class="vel vel-r">Rising</div></div><div class="tc-body"><div class="tc-name">"AI NPC" challenge</div><div class="tc-meta">Format · 18K videos · 5 day window</div><div class="bar-bg"><div class="bar-fill bp" style="width:82%"></div></div><div class="bar-label">82% niche match</div></div></div>
+    <div class="trend-card" id="card-2" onclick="openPanel(2)"><div class="tc-thumb tt"><span style="font-size:26px">🔊</span><div class="vel vel-r">Rising</div></div><div class="tc-body"><div class="tc-name">Neon Bleed — Glitch Era</div><div class="tc-meta">Sound · 2.4M uses · +310% this week</div><div class="bar-bg"><div class="bar-fill bt" style="width:91%"></div></div><div class="bar-label">91% niche match</div></div></div>
+    <div class="trend-card" id="card-3" onclick="openPanel(3)"><div class="tc-thumb ta"><span style="font-size:26px">🎬</span><div class="vel vel-p">Peaking</div></div><div class="tc-body"><div class="tc-name">Split-screen reaction</div><div class="tc-meta">Format · 340K videos · Broad niche</div><div class="bar-bg"><div class="bar-fill ba" style="width:74%"></div></div><div class="bar-label">74% niche match</div></div></div>
+    <div class="trend-card" id="card-4" onclick="openPanel(4)"><div class="tc-thumb tk"><span style="font-size:26px">🏆</span><div class="vel vel-r">Rising</div></div><div class="tc-body"><div class="tc-name">"Rank it live" format</div><div class="tc-meta">Format · 92K videos · +180% this week</div><div class="bar-bg"><div class="bar-fill bk" style="width:67%"></div></div><div class="bar-label">67% niche match</div></div></div>
+  </div>
+
+  <!-- VERTICAL FEED OVERLAY -->
+  <div class="feed-ov" id="feed-ov">
+    <div class="ftop">
+      <div class="fpill" id="fpill">AI NPC challenge</div>
+      <button class="fexit" onclick="closeFeed()">✕ Exit feed</button>
+    </div>
+    <div class="phone">
+      <div class="pnotch"></div>
+      <div class="pscreen">
+        <div class="vfeed" id="vfeed" onscroll="onScroll()">
+          <div class="vslide"><div class="vsbg sb1"><span>🤖</span></div><div class="vsgrad"></div><div class="pips"><div class="pip on" id="pip0"></div><div class="pip" id="pip1"></div><div class="pip" id="pip2"></div><div class="pip" id="pip3"></div><div class="pip" id="pip4"></div><div class="pip" id="pip5"></div></div><div class="vacts"><div class="vact"><div class="vact-ic">♥</div><div class="vact-lb">2.1M</div></div><div class="vact"><div class="vact-ic">💬</div><div class="vact-lb">14.2K</div></div><div class="vact"><div class="vact-ic">↗</div><div class="vact-lb">Share</div></div></div><div class="vcont"><div class="vbdgs"><span class="vb vbm">82% match</span><span class="vb vbtt">TikTok</span></div><div class="vhand">@glitchhunter</div><div class="vcap2">AI controlled my character for 60s and this happened 💀</div><div class="vsnd"><div class="vsnd-d"></div>Neon Bleed — Glitch Era</div></div><div class="vinspo"><button class="vinspo-btn">Use as inspiration ↗</button></div></div>
+          <div class="vslide"><div class="vsbg sb2"><span>🎮</span></div><div class="vsgrad"></div><div class="vacts"><div class="vact"><div class="vact-ic">♥</div><div class="vact-lb">890K</div></div><div class="vact"><div class="vact-ic">💬</div><div class="vact-lb">8.4K</div></div><div class="vact"><div class="vact-ic">↗</div><div class="vact-lb">Share</div></div></div><div class="vcont"><div class="vbdgs"><span class="vb vbm">High match</span><span class="vb vbtt">TikTok</span></div><div class="vhand">@npcgod</div><div class="vcap2">Letting the AI decide every single move — unhinged results</div><div class="vsnd"><div class="vsnd-d"></div>original audio</div></div><div class="vinspo"><button class="vinspo-btn">Use as inspiration ↗</button></div></div>
+          <div class="vslide"><div class="vsbg sb3"><span>🕹️</span></div><div class="vsgrad"></div><div class="vacts"><div class="vact"><div class="vact-ic">♥</div><div class="vact-lb">1.4M</div></div><div class="vact"><div class="vact-ic">💬</div><div class="vact-lb">22.1K</div></div><div class="vact"><div class="vact-ic">↗</div><div class="vact-lb">Share</div></div></div><div class="vcont"><div class="vbdgs"><span class="vb vbig">Instagram</span><span class="vb vbor">Origin video</span></div><div class="vhand">@arcadebrainrot</div><div class="vcap2">This started the whole trend — original IG before it hit TikTok</div><div class="vsnd"><div class="vsnd-d"></div>original audio</div></div><div class="vinspo"><button class="vinspo-btn">Use as inspiration ↗</button></div></div>
+          <div class="vslide"><div class="vsbg sb4"><span>🤣</span></div><div class="vsgrad"></div><div class="vacts"><div class="vact"><div class="vact-ic">♥</div><div class="vact-lb">560K</div></div><div class="vact"><div class="vact-ic">💬</div><div class="vact-lb">4.9K</div></div><div class="vact"><div class="vact-ic">↗</div><div class="vact-lb">Share</div></div></div><div class="vcont"><div class="vbdgs"><span class="vb vbm">High match</span><span class="vb vbtt">TikTok</span></div><div class="vhand">@ragequitter99</div><div class="vcap2">The AI NPC strat actually works??? I'm crying fr</div><div class="vsnd"><div class="vsnd-d"></div>Neon Bleed — Glitch Era</div></div><div class="vinspo"><button class="vinspo-btn">Use as inspiration ↗</button></div></div>
+          <div class="vslide"><div class="vsbg sb5"><span>🧠</span></div><div class="vsgrad"></div><div class="vacts"><div class="vact"><div class="vact-ic">♥</div><div class="vact-lb">310K</div></div><div class="vact"><div class="vact-ic">💬</div><div class="vact-lb">3.1K</div></div><div class="vact"><div class="vact-ic">↗</div><div class="vact-lb">Share</div></div></div><div class="vcont"><div class="vbdgs"><span class="vb vbm">High match</span><span class="vb vbtt">TikTok</span></div><div class="vhand">@meta_gamer</div><div class="vcap2">Commentary breakdown: why AI NPC has insane completion rates</div><div class="vsnd"><div class="vsnd-d"></div>original audio</div></div><div class="vinspo"><button class="vinspo-btn">Use as inspiration ↗</button></div></div>
+          <div class="vslide"><div class="vsbg sb6"><span>🎯</span></div><div class="vsgrad"></div><div class="vacts"><div class="vact"><div class="vact-ic">♥</div><div class="vact-lb">270K</div></div><div class="vact"><div class="vact-ic">💬</div><div class="vact-lb">2.3K</div></div><div class="vact"><div class="vact-ic">↗</div><div class="vact-lb">Share</div></div></div><div class="vcont"><div class="vbdgs"><span class="vb vbm">Niche take</span><span class="vb vbtt">TikTok</span></div><div class="vhand">@dailydrop_gg</div><div class="vcap2">AI NPC challenge on ranked — this is going in the hall of fame</div><div class="vsnd"><div class="vsnd-d"></div>Neon Bleed — Glitch Era</div></div><div class="vinspo"><button class="vinspo-btn">Use as inspiration ↗</button></div></div>
+          <div class="endslide"><div class="endcheck">✓</div><div class="endtitle">You've seen all 6 videos</div><div class="endsub">Ready to create? Go to the content brief, or explore other trends.</div><button class="endback" onclick="closeFeed()">← Back to dashboard</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="navrow">
+      <button class="navbtn" onclick="prevSlide()">↑ Prev</button>
+      <div class="navctr" id="navctr">1 / 6</div>
+      <button class="navbtn" onclick="nextSlide()">↓ Next</button>
+    </div>
+  </div>
+
+  <!-- PANELS -->
+  <div class="expanded-panel open" id="panel-1">
+    <div class="ph"><div class="ph-title">🎮 "AI NPC" challenge</div><div style="display:flex;gap:6px;align-items:center"><div class="tabs"><button class="tab on" onclick="switchTab(1,'scroll')">Sample videos</button><button class="tab" onclick="switchTab(1,'brief')">Content brief</button><button class="tab" onclick="switchTab(1,'dive')">Deep dive</button></div><button class="xbtn" onclick="closePanel(1)">✕</button></div></div>
+    <div class="sec on" id="p1-scroll">
+      <div class="hint">Click any video to enter the full-screen trend feed from that point</div>
+      <div class="hrow">
+        <div class="vc" onclick="openFeed(1,0)"><div class="vt vbg1"><span style="font-size:26px">🤖</span><div class="vhov"><div class="play"><svg width="10" height="12" viewBox="0 0 10 12" fill="#534AB7"><polygon points="0,0 10,6 0,12"/></svg></div></div><div class="vplat plt-tt">TikTok</div><div class="vmatch">High match</div><div class="vviews">2.1M</div></div><div class="vhandle">@glitchhunter</div><div class="vcap">AI controlled my character for 60s</div></div>
+        <div class="vc" onclick="openFeed(1,1)"><div class="vt vbg2"><span style="font-size:26px">🎮</span><div class="vhov"><div class="play"><svg width="10" height="12" viewBox="0 0 10 12" fill="#534AB7"><polygon points="0,0 10,6 0,12"/></svg></div></div><div class="vplat plt-tt">TikTok</div><div class="vmatch">High match</div><div class="vviews">890K</div></div><div class="vhandle">@npcgod</div><div class="vcap">Letting the AI decide every move</div></div>
+        <div class="vc" onclick="openFeed(1,2)"><div class="vt vbg3"><span style="font-size:26px">🕹️</span><div class="vhov"><div class="play"><svg width="10" height="12" viewBox="0 0 10 12" fill="#993556"><polygon points="0,0 10,6 0,12"/></svg></div></div><div class="vplat plt-ig">Instagram</div><div class="vviews">1.4M</div></div><div class="vhandle">@arcadebrainrot</div><div class="vcap">This started the trend — original IG</div></div>
+        <div class="vc" onclick="openFeed(1,3)"><div class="vt vbg4"><span style="font-size:26px">🤣</span><div class="vhov"><div class="play"><svg width="10" height="12" viewBox="0 0 10 12" fill="#534AB7"><polygon points="0,0 10,6 0,12"/></svg></div></div><div class="vplat plt-tt">TikTok</div><div class="vviews">560K</div></div><div class="vhandle">@ragequitter99</div><div class="vcap">The AI NPC strat actually works???</div></div>
+        <div class="vc" onclick="openFeed(1,4)"><div class="vt vbg5"><span style="font-size:26px">🧠</span><div class="vhov"><div class="play"><svg width="10" height="12" viewBox="0 0 10 12" fill="#534AB7"><polygon points="0,0 10,6 0,12"/></svg></div></div><div class="vplat plt-tt">TikTok</div><div class="vviews">310K</div></div><div class="vhandle">@meta_gamer</div><div class="vcap">Commentary breakdown on why this works</div></div>
+        <div class="vc" onclick="openFeed(1,5)"><div class="vt vbg6"><span style="font-size:26px">🎯</span><div class="vhov"><div class="play"><svg width="10" height="12" viewBox="0 0 10 12" fill="#534AB7"><polygon points="0,0 10,6 0,12"/></svg></div></div><div class="vplat plt-tt">TikTok</div><div class="vviews">270K</div></div><div class="vhandle">@dailydrop_gg</div><div class="vcap">AI NPC challenge on ranked</div></div>
+      </div>
+    </div>
+    <div class="sec" id="p1-brief"><div class="brief-box"><div class="blbl">Concept</div><div class="btext">Let AI fully control your in-game decisions for a full match — no overrides. Film your live reaction and add commentary on what the AI got right and catastrophically wrong.</div></div><div class="brief-box" style="margin-top:.5rem"><div class="blbl">Hook</div><div class="hook">"I gave AI full control of my game for 60 seconds. It found a strategy I'd never try — and it almost worked."</div></div><div style="display:flex;align-items:center;gap:8px;margin-top:.7rem"><button class="script-btn">Write full script ↗</button><span style="font-size:10px;color:#999">~10 sec</span></div></div>
+    <div class="sec" id="p1-dive"><div class="drow"><div class="dlbl">Why it's trending</div><div class="dval">Format-driven — the "AI takeover" mechanic gives creators a built-in unpredictable moment, driving completion rate.</div></div><div class="drow"><div class="dlbl">Who's on it</div><div class="dval">Gaming (50%), entertainment (30%), tech-adjacent (20%). Your cohort is underrepresented — low competition window.</div></div><div class="drow" style="margin-bottom:0"><div class="dlbl">Cross-platform</div><div class="dval">Originated on Instagram Reels 2 weeks ago. TikTok still accelerating.</div></div></div>
+  </div>
+
+  <div class="expanded-panel" id="panel-2">
+    <div class="ph"><div class="ph-title">🔊 Neon Bleed — Glitch Era</div><div style="display:flex;gap:6px;align-items:center"><div class="tabs"><button class="tab on" onclick="switchTab(2,'scroll')">Sample videos</button><button class="tab" onclick="switchTab(2,'brief')">Content brief</button><button class="tab" onclick="switchTab(2,'dive')">Deep dive</button></div><button class="xbtn" onclick="closePanel(2)">✕</button></div></div>
+    <div class="sec on" id="p2-scroll"><div class="hint">Click any video to enter the full-screen trend feed from that point</div><div class="hrow">
+      <div class="vc" onclick="openFeed(2,0)"><div class="vt vbg2"><span style="font-size:26px">🎵</span><div class="vhov"><div class="play"><svg width="10" height="12" viewBox="0 0 10 12" fill="#534AB7"><polygon points="0,0 10,6 0,12"/></svg></div></div><div class="vplat plt-tt">TikTok</div><div class="vmatch">High match</div><div class="vviews">3.2M</div></div><div class="vhandle">@soundwave_gg</div><div class="vcap">This sound + montage is hitting</div></div>
+      <div class="vc" onclick="openFeed(2,1)"><div class="vt vbg4"><span style="font-size:26px">🎧</span><div class="vhov"><div class="play"><svg width="10" height="12" viewBox="0 0 10 12" fill="#534AB7"><polygon points="0,0 10,6 0,12"/></svg></div></div><div class="vplat plt-tt">TikTok</div><div class="vviews">1.1M</div></div><div class="vhandle">@loficlips</div><div class="vcap">POV: your highlight reel cinematic</div></div>
+      <div class="vc" onclick="openFeed(2,2)"><div class="vt vbg3"><span style="font-size:26px">📽️</span><div class="vhov"><div class="play"><svg width="10" height="12" viewBox="0 0 10 12" fill="#993556"><polygon points="0,0 10,6 0,12"/></svg></div></div><div class="vplat plt-ig">Instagram</div><div class="vviews">2.4M</div></div><div class="vhandle">@reels.gg</div><div class="vcap">Original IG reel that made this blow up</div></div>
+      <div class="vc" onclick="openFeed(2,3)"><div class="vt vbg1"><span style="font-size:26px">🔥</span><div class="vhov"><div class="play"><svg width="10" height="12" viewBox="0 0 10 12" fill="#534AB7"><polygon points="0,0 10,6 0,12"/></svg></div></div><div class="vplat plt-tt">TikTok</div><div class="vviews">780K</div></div><div class="vhandle">@clutchclips_x</div><div class="vcap">Neon Bleed syncs perfectly here</div></div>
+    </div></div>
+    <div class="sec" id="p2-brief"><div class="brief-box"><div class="blbl">Concept</div><div class="btext">Use Neon Bleed under a reaction or breakdown video — the audio's natural build maps cleanly to a reveal structure.</div></div><div class="brief-box" style="margin-top:.5rem"><div class="blbl">Hook</div><div class="hook">"This sound makes anything look cinematic. Watch what it does to my worst gameplay clip."</div></div><button class="script-btn" style="margin-top:.7rem">Write full script ↗</button></div>
+    <div class="sec" id="p2-dive"><div class="drow"><div class="dlbl">Why it's trending</div><div class="dval">Audio-driven. Cinematic build pairs well with montage and reaction formats.</div></div><div class="drow" style="margin-bottom:0"><div class="dlbl">Lifecycle</div><div class="dval">Day 4 of rising. IG origin — TikTok crossover still accelerating.</div></div></div>
+  </div>
+
+  <div class="expanded-panel" id="panel-3">
+    <div class="ph"><div class="ph-title">🎬 Split-screen reaction</div><div style="display:flex;gap:6px;align-items:center"><div class="tabs"><button class="tab on" onclick="switchTab(3,'scroll')">Sample videos</button><button class="tab" onclick="switchTab(3,'brief')">Content brief</button><button class="tab" onclick="switchTab(3,'dive')">Deep dive</button></div><button class="xbtn" onclick="closePanel(3)">✕</button></div></div>
+    <div class="sec on" id="p3-scroll"><div class="hint">Click any video to enter the full-screen trend feed from that point</div><div class="hrow">
+      <div class="vc" onclick="openFeed(3,0)"><div class="vt vbg3"><span style="font-size:26px">📱</span><div class="vhov"><div class="play"><svg width="10" height="12" viewBox="0 0 10 12" fill="#534AB7"><polygon points="0,0 10,6 0,12"/></svg></div></div><div class="vplat plt-tt">TikTok</div><div class="vmatch">High match</div><div class="vviews">4.5M</div></div><div class="vhandle">@splitscreen_pro</div><div class="vcap">Split format for hot takes is undefeated</div></div>
+      <div class="vc" onclick="openFeed(3,1)"><div class="vt vbg1"><span style="font-size:26px">😱</span><div class="vhov"><div class="play"><svg width="10" height="12" viewBox="0 0 10 12" fill="#534AB7"><polygon points="0,0 10,6 0,12"/></svg></div></div><div class="vplat plt-tt">TikTok</div><div class="vviews">1.8M</div></div><div class="vhandle">@reactking</div><div class="vcap">Reacting to my most controversial take</div></div>
+      <div class="vc" onclick="openFeed(3,2)"><div class="vt vbg2"><span style="font-size:26px">🤔</span><div class="vhov"><div class="play"><svg width="10" height="12" viewBox="0 0 10 12" fill="#534AB7"><polygon points="0,0 10,6 0,12"/></svg></div></div><div class="vplat plt-tt">TikTok</div><div class="vviews">920K</div></div><div class="vhandle">@deepcut_takes</div><div class="vcap">Split screen debate that keeps watching</div></div>
+    </div></div>
+    <div class="sec" id="p3-brief"><div class="brief-box"><div class="blbl">Concept</div><div class="btext">React to a trending gaming clip in real time — your face on one side, the content on the other. Under 45 seconds.</div></div><div class="brief-box" style="margin-top:.5rem"><div class="blbl">Hook</div><div class="hook">"I need to react to this immediately. This might be the worst play I've ever seen."</div></div><button class="script-btn" style="margin-top:.7rem">Write full script ↗</button></div>
+    <div class="sec" id="p3-dive"><div class="drow"><div class="dlbl">Why it's trending</div><div class="dval">Format-driven. Split-screen creates implicit comparison keeping viewers watching.</div></div><div class="drow" style="margin-bottom:0"><div class="dlbl">Lifecycle</div><div class="dval">Peaking — 340K videos. Still worth doing but early window has passed.</div></div></div>
+  </div>
+
+  <div class="expanded-panel" id="panel-4">
+    <div class="ph"><div class="ph-title">🏆 "Rank it live" format</div><div style="display:flex;gap:6px;align-items:center"><div class="tabs"><button class="tab on" onclick="switchTab(4,'scroll')">Sample videos</button><button class="tab" onclick="switchTab(4,'brief')">Content brief</button><button class="tab" onclick="switchTab(4,'dive')">Deep dive</button></div><button class="xbtn" onclick="closePanel(4)">✕</button></div></div>
+    <div class="sec on" id="p4-scroll"><div class="hint">Click any video to enter the full-screen trend feed from that point</div><div class="hrow">
+      <div class="vc" onclick="openFeed(4,0)"><div class="vt vbg4"><span style="font-size:26px">📊</span><div class="vhov"><div class="play"><svg width="10" height="12" viewBox="0 0 10 12" fill="#534AB7"><polygon points="0,0 10,6 0,12"/></svg></div></div><div class="vplat plt-tt">TikTok</div><div class="vmatch">High match</div><div class="vviews">1.2M</div></div><div class="vhandle">@tierlist_god</div><div class="vcap">Ranking every game mechanic — chat decides</div></div>
+      <div class="vc" onclick="openFeed(4,1)"><div class="vt vbg5"><span style="font-size:26px">🥇</span><div class="vhov"><div class="play"><svg width="10" height="12" viewBox="0 0 10 12" fill="#534AB7"><polygon points="0,0 10,6 0,12"/></svg></div></div><div class="vplat plt-tt">TikTok</div><div class="vviews">880K</div></div><div class="vhandle">@rankmaster</div><div class="vcap">I rank these and won't take questions</div></div>
+      <div class="vc" onclick="openFeed(4,2)"><div class="vt vbg2"><span style="font-size:26px">⚡</span><div class="vhov"><div class="play"><svg width="10" height="12" viewBox="0 0 10 12" fill="#993556"><polygon points="0,0 10,6 0,12"/></svg></div></div><div class="vplat plt-ig">Instagram</div><div class="vviews">730K</div></div><div class="vhandle">@reels_ranked</div><div class="vcap">IG version — where the format started</div></div>
+    </div></div>
+    <div class="sec" id="p4-brief"><div class="brief-box"><div class="blbl">Concept</div><div class="btext">Pick a hot debate in your niche and rank them live with visible reasoning. Let the disagreement fuel comments.</div></div><div class="brief-box" style="margin-top:.5rem"><div class="blbl">Hook</div><div class="hook">"I'm ranking every game from this year and I know half of you will lose it in the comments."</div></div><button class="script-btn" style="margin-top:.7rem">Write full script ↗</button></div>
+    <div class="sec" id="p4-dive"><div class="drow"><div class="dlbl">Why it's trending</div><div class="dval">Opinion-driven formats generate high comment volume. Ranking gives viewers a clear thing to disagree with.</div></div><div class="drow" style="margin-bottom:0"><div class="dlbl">Lifecycle</div><div class="dval">Day 8, still rising. Strong comment-to-view ratio suggests legs.</div></div></div>
+  </div>
+
+  <div class="section-label">Suggested actions</div>
+  <div class="agent-card">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem"><div style="width:24px;height:24px;border-radius:6px;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:12px">✦</div><div style="font-size:13px;font-weight:600;color:#111">AI suggestions for you</div></div>
+    <div class="sug"><div class="sicon">🎮</div><div><div class="stext"><span class="sact">Try the "AI NPC" challenge</span> — your explainer format is a natural fit. Hook: "I gave AI full control for 60 seconds."</div><div class="scta"><button class="sbtn" onclick="openPanel(1);switchTab(1,'brief')">See content brief ↗</button><div class="tbpair"><div class="tb" id="u1" onclick="th(1,'u')">👍</div><div class="tb" id="d1" onclick="th(1,'d')">👎</div></div></div></div></div>
+    <div class="sug"><div class="sicon">🔊</div><div><div class="stext"><span class="sact">Use "Neon Bleed" this week</span> — still early window. Your reaction videos pair well with this audio's pacing.</div><div class="scta"><button class="sbtn" onclick="openPanel(2);switchTab(2,'scroll')">Browse sample videos ↗</button><div class="tbpair"><div class="tb" id="u2" onclick="th(2,'u')">👍</div><div class="tb" id="d2" onclick="th(2,'d')">👎</div></div></div></div></div>
+    <div class="sug"><div class="sicon">📈</div><div><div class="stext"><span class="sact">Your 60s explainer is outperforming</span> — 3 of this week's trends map directly onto it.</div><div class="scta"><button class="sbtn">See matching trends ↗</button><div class="tbpair"><div class="tb" id="u3" onclick="th(3,'u')">👍</div><div class="tb" id="d3" onclick="th(3,'d')">👎</div></div></div></div></div>
+  </div>
+</div>
+
+<script>
+const TITLES={1:'AI NPC challenge',2:'Neon Bleed — Glitch Era',3:'Split-screen reaction',4:'"Rank it live" format'};
+const TOTAL=6;
+let cur=0,activeTrend=1;
+
+function openPanel(id){
+  document.querySelectorAll('.trend-card').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.expanded-panel').forEach(p=>p.classList.remove('open'));
+  document.getElementById('feed-ov').classList.remove('open');
+  document.getElementById('card-'+id).classList.add('active');
+  document.getElementById('panel-'+id).classList.add('open');
+}
+function closePanel(id){
+  document.getElementById('card-'+id).classList.remove('active');
+  document.getElementById('panel-'+id).classList.remove('open');
+}
+function switchTab(pid,tab){
+  const p=document.getElementById('panel-'+pid);
+  p.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  p.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  p.querySelector('#p'+pid+'-'+tab).classList.add('on');
+  const i={scroll:0,brief:1,dive:2}[tab];
+  p.querySelectorAll('.tab')[i].classList.add('on');
+}
+function openFeed(trendId,startIdx){
+  activeTrend=trendId;
+  document.querySelectorAll('.expanded-panel').forEach(p=>p.classList.remove('open'));
+  document.querySelectorAll('.trend-card').forEach(c=>c.classList.remove('active'));
+  document.getElementById('card-'+trendId).classList.add('active');
+  document.getElementById('fpill').textContent=TITLES[trendId];
+  const ov=document.getElementById('feed-ov');
+  ov.classList.add('open');
+  ov.scrollIntoView({behavior:'smooth',block:'start'});
+  cur=startIdx;
+  const vf=document.getElementById('vfeed');
+  vf.scrollTop=startIdx*560;
+  syncPips(startIdx);
+  syncCtr(startIdx);
+}
+function closeFeed(){
+  document.getElementById('feed-ov').classList.remove('open');
+  document.getElementById('panel-'+activeTrend).classList.add('open');
+  switchTab(activeTrend,'scroll');
+}
+function goTo(n){
+  cur=Math.max(0,Math.min(n,TOTAL));
+  document.getElementById('vfeed').scrollTop=cur*560;
+  syncPips(cur);syncCtr(cur);
+}
+function nextSlide(){goTo(cur+1);}
+function prevSlide(){goTo(cur-1);}
+function syncPips(idx){
+  for(let i=0;i<TOTAL;i++){const p=document.getElementById('pip'+i);if(p)p.className='pip'+(i===idx?' on':'');}
+}
+function syncCtr(idx){document.getElementById('navctr').textContent=Math.min(idx+1,TOTAL)+' / '+TOTAL;}
+function onScroll(){
+  const vf=document.getElementById('vfeed');
+  const s=Math.round(vf.scrollTop/560);
+  if(s!==cur){cur=s;syncPips(cur);syncCtr(cur);}
+}
+function th(id,dir){
+  ['u','d'].forEach(d=>{const el=document.getElementById(d+id);if(el)el.className='tb';});
+  const el=document.getElementById((dir==='u'?'u':'d')+id);
+  if(el)el.classList.add(dir==='u'?'uon':'don');
+}
+</script>
+</body>
+</html>

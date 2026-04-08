@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Content Launch Pads — Product Demo</title>
+  <style>
+    :root {
+      --tt-pink: #fe2c55;
+      --tt-pink-dim: rgba(254, 44, 85, 0.15);
+      --bg: #0a0a0a;
+      --surface: #161616;
+      --surface-2: #1e1e1e;
+      --border: #2a2a2a;
+      --text: #f5f5f5;
+      --text-muted: #8a8a8a;
+      --green: #25f4ee;
+      --amber: #ffc107;
+      --radius: 14px;
+      --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: #050505;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 24px 16px 48px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .demo-label {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    /* Phone frame */
+    .phone {
+      width: min(390px, 100vw - 32px);
+      min-height: min(780px, 92vh);
+      background: linear-gradient(180deg, #121212 0%, var(--bg) 40%);
+      border-radius: 36px;
+      border: 3px solid #2c2c2c;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.06),
+        0 24px 80px rgba(0,0,0,0.65);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .notch {
+      height: 28px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 8px;
+    }
+    .notch-pill {
+      width: 96px;
+      height: 24px;
+      background: #000;
+      border-radius: 20px;
+    }
+
+    /* Studio header */
+    .studio-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 18px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .studio-bar h1 {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .studio-bar span {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .tt-mark {
+      color: var(--tt-pink);
+      font-weight: 800;
+    }
+
+    .screen {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 16px 16px 28px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .step { display: none; animation: fadeIn 0.35s ease; }
+    .step.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: -0.02em;
+    }
+    .sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.45;
+      margin-bottom: 18px;
+    }
+
+    /* Upload preview */
+    .video-thumb {
+      aspect-ratio: 9/16;
+      max-height: 220px;
+      margin: 0 auto 16px;
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, #2a1810 0%, #1a1020 50%, #0d1828 100%);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .video-thumb::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 20%, rgba(254,44,85,0.25), transparent 50%);
+    }
+    .play-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.55);
+      border: 2px solid rgba(255,255,255,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+    .play-icon::before {
+      content: "";
+      border-style: solid;
+      border-width: 9px 0 9px 14px;
+      border-color: transparent transparent transparent #fff;
+      margin-left: 4px;
+    }
+    .badge-duration {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(0,0,0,0.7);
+      padding: 4px 8px;
+      border-radius: 6px;
+      z-index: 1;
+    }
+
+    /* Launch Pad card */
+    .launch-pad-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .launch-pad-card .title-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .icon-lab {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--tt-pink-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .launch-pad-card h3 {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.35;
+      margin-bottom: 4px;
+    }
+    .launch-pad-card p {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      margin-top: 4px;
+    }
+    .toggle-row span { font-size: 13px; font-weight: 600; }
+
+    .switch {
+      width: 48px;
+      height: 28px;
+      background: #333;
+      border-radius: 20px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+      border: none;
+      flex-shrink: 0;
+    }
+    .switch.on {
+      background: var(--tt-pink);
+    }
+    .switch::after {
+      content: "";
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s;
+    }
+    .switch.on::after {
+      transform: translateX(20px);
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 999px;
+      border: none;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: var(--tt-pink);
+      color: #fff;
+    }
+    .btn-primary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+      margin-top: 10px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    /* Variant carousel */
+    .variant-strip {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin: 0 -16px;
+      padding-left: 16px;
+      padding-right: 16px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    .variant-strip::-webkit-scrollbar { height: 4px; }
+    .variant-strip::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+
+    .variant-card {
+      flex: 0 0 85%;
+      max-width: 300px;
+      scroll-snap-align: center;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+    .variant-card header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .tag {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: rgba(37, 244, 238, 0.12);
+      color: var(--green);
+    }
+    .tag.audio { background: var(--tt-pink-dim); color: var(--tt-pink); }
+    .tag.length { background: rgba(255,193,7,0.12); color: var(--amber); }
+
+    .mini-thumb {
+      height: 100px;
+      border-radius: 10px;
+      background: #222;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .hook {
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+    .hook mark {
+      background: rgba(254, 44, 85, 0.35);
+      color: inherit;
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+    .caption-preview {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin: 14px 0;
+    }
+    .dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #444;
+    }
+    .dots span.on { background: var(--tt-pink); }
+
+    /* Settings */
+    .field {
+      margin-bottom: 14px;
+    }
+    .field label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .chip.selected {
+      border-color: var(--tt-pink);
+      background: var(--tt-pink-dim);
+      color: var(--tt-pink);
+    }
+
+    /* Testing status */
+    .status-hero {
+      text-align: center;
+      padding: 24px 0 8px;
+    }
+    .pulse-ring {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      border: 3px solid var(--tt-pink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(254, 44, 85, 0.45); }
+      50% { box-shadow: 0 0 0 16px rgba(254, 44, 85, 0); }
+    }
+    .pulse-ring span { font-size: 22px; }
+
+    .countdown {
+      font-size: 28px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.04em;
+      color: var(--tt-pink);
+    }
+    .status-line {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .progress-track {
+      height: 6px;
+      background: #2a2a2a;
+      border-radius: 4px;
+      margin: 20px 0 8px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--tt-pink), #ff6b8a);
+      border-radius: 4px;
+      transition: width 0.3s linear;
+    }
+    .variant-pills {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .variant-pill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: var(--surface);
+      border-radius: 10px;
+      font-size: 12px;
+      border: 1px solid var(--border);
+    }
+    .variant-pill strong { font-size: 13px; }
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: blink 1.2s ease infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+
+    /* Winner + insight */
+    .winner-banner {
+      background: linear-gradient(135deg, rgba(254,44,85,0.2), rgba(37,244,238,0.08));
+      border: 1px solid rgba(254,44,85,0.35);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .winner-banner .emoji { font-size: 32px; margin-bottom: 8px; }
+    .winner-banner h3 { font-size: 17px; margin-bottom: 4px; }
+    .winner-banner .mult {
+      font-size: 14px;
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .insight-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+    .insight-card h4 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .insight-card p {
+      font-size: 14px;
+      line-height: 1.55;
+      color: #e8e8e8;
+    }
+    .insight-card .rec {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--amber);
+      font-weight: 600;
+    }
+
+    .step-dots-footer {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      border-top: 1px solid var(--border);
+      background: rgba(0,0,0,0.35);
+    }
+    .step-dots-footer button {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: none;
+      background: #444;
+      cursor: pointer;
+      padding: 0;
+    }
+    .step-dots-footer button.on { background: var(--tt-pink); width: 22px; border-radius: 4px; }
+
+    @media (max-width: 380px) {
+      .variant-card { flex-basis: 90%; }
+    }
+  </style>
+</head>
+<body>
+  <p class="demo-label">Interactive product demo · Content Launch Pads</p>
+
+  <div class="phone" id="phone">
+    <div class="notch"><div class="notch-pill"></div></div>
+
+    <div class="studio-bar">
+      <div>
+        <h1><span class="tt-mark">TikTok</span> Studio</h1>
+        <span>Upload</span>
+      </div>
+      <span style="font-size:20px; opacity:0.5">⋯</span>
+    </div>
+
+    <div class="screen">
+      <!-- Step 0: Upload + opt-in -->
+      <section class="step active" data-step="0">
+        <h2>New video</h2>
+        <p class="sub">After upload, Launch Pad can test variants on small audiences before full distribution.</p>
+
+        <div class="video-thumb">
+          <div class="play-icon"></div>
+          <span class="badge-duration">0:45</span>
+        </div>
+
+        <div class="launch-pad-card">
+          <div class="title-row">
+            <div class="icon-lab">🧪</div>
+            <div>
+              <h3>Test which version performs best before going wide?</h3>
+              <p>Takes about 6 hours. You review every variant — nothing ships without your OK.</p>
+            </div>
+          </div>
+          <div class="toggle-row">
+            <span>Use Content Launch Pad</span>
+            <button type="button" class="switch" id="optIn" aria-pressed="false" aria-label="Toggle Launch Pad"></button>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-primary" id="toVariants" disabled>Continue</button>
+        <button type="button" class="btn btn-ghost" data-skip>Skip — post as usual</button>
+      </section>
+
+      <!-- Step 1: Variants -->
+      <section class="step" data-step="1">
+        <h2>Review variants</h2>
+        <p class="sub">AI suggested 4 lightweight versions. Swipe to compare hook, caption, length, and sound.</p>
+
+        <div class="variant-strip" id="variantStrip">
+          <article class="variant-card">
+            <header>
+              <span class="tag">Primary</span>
+              <span style="font-size:11px;color:var(--text-muted)">A</span>
+            </header>
+            <div class="mini-thumb">Original cut · 45s</div>
+            <p class="hook">POV: you finally organized your desk</p>
+            <p class="caption-preview">#desksetup #cleanwithme · sound: original</p>
+          </article>
+
+          <article class="variant-card">
+            <header>
+              <span class="tag">Hook</span>
+              <span style="font-size:11px;color:var(--text-muted)">B</span>
+            </header>
+            <div class="mini-thumb">Same visual · hook only</div>
+            <p class="hook"><mark>Wait for the before/after</mark> — desk glow-up in 45s</p>
+            <p class="caption-preview">Caption + hashtags tweaked for search intent</p>
+          </article>
+
+          <article class="variant-card">
+            <header>
+              <span class="tag length">Length</span>
+              <span style="font-size:11px;color:var(--text-muted)">C</span>
+            </header>
+            <div class="mini-thumb">Trimmed · <strong style="color:var(--amber)">15s</strong></div>
+            <p class="hook">Opens on the payoff — compressed hook</p>
+            <p class="caption-preview">Short-form cut for trend velocity</p>
+          </article>
+
+          <article class="variant-card">
+            <header>
+              <span class="tag audio">Audio</span>
+              <span style="font-size:11px;color:var(--text-muted)">D</span>
+            </header>
+            <div class="mini-thumb">Trending sound overlay</div>
+            <p class="hook">Same script — <mark>trending audio</mark> from library</p>
+            <p class="caption-preview">Matched to category-approved sound</p>
+          </article>
+        </div>
+
+        <div class="dots" id="variantDots" aria-hidden="true">
+          <span class="on"></span><span></span><span></span><span></span>
+        </div>
+
+        <button type="button" class="btn btn-primary" id="toSettings">Approve &amp; configure test</button>
+      </section>
+
+      <!-- Step 2: Settings -->
+      <section class="step" data-step="2">
+        <h2>Test settings</h2>
+        <p class="sub">Matched micro-audiences — no overlap between variants. Defaults match the PRD.</p>
+
+        <div class="field">
+          <label>Test window</label>
+          <div class="chips" id="windowChips">
+            <button type="button" class="chip" data-hours="3">3h</button>
+            <button type="button" class="chip selected" data-hours="6">6h</button>
+            <button type="button" class="chip" data-hours="12">12h</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Audience per variant</label>
+          <div class="chips" id="audienceChips">
+            <button type="button" class="chip" data-n="500">500</button>
+            <button type="button" class="chip selected" data-n="1000">1,000</button>
+            <button type="button" class="chip" data-n="2000">2,000</button>
+          </div>
+        </div>
+
+        <div class="launch-pad-card" style="margin-bottom:18px">
+          <p style="font-size:12px;color:var(--text-muted);line-height:1.5">
+            Winner = highest score across <strong style="color:var(--text)">VV</strong>,
+            <strong style="color:var(--text)">completion</strong>, and <strong style="color:var(--text)">shares</strong> in the window.
+            You’ll get a “why this won” card when it finishes.
+          </p>
+        </div>
+
+        <button type="button" class="btn btn-primary" id="startTest">Start Launch Pad test</button>
+      </section>
+
+      <!-- Step 3: Live -->
+      <section class="step" data-step="3">
+        <div class="status-hero">
+          <div class="pulse-ring"><span>📡</span></div>
+          <p class="countdown" id="countdown">5:42:18</p>
+          <p class="status-line">Testing <strong id="variantCount">4</strong> variants — results in ~<span id="hoursLeft">5h 42m</span></p>
+        </div>
+
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <p class="status-line" style="text-align:center;margin-bottom:16px;font-size:11px">Early velocity signal · mutually exclusive slices</p>
+
+        <div class="variant-pills">
+          <div class="variant-pill"><span><strong>A</strong> · Primary</span><span class="live-dot" title="Live"></span></div>
+          <div class="variant-pill"><span><strong>B</strong> · Hook</span><span class="live-dot"></span></div>
+          <div class="variant-pill"><span><strong>C</strong> · 15s</span><span class="live-dot"></span></div>
+          <div class="variant-pill"><span><strong>D</strong> · Audio</span><span class="live-dot"></span></div>
+        </div>
+
+        <button type="button" class="btn btn-ghost" id="fastForward" style="margin-top:20px">Demo: jump to results →</button>
+      </section>
+
+      <!-- Step 4: Results -->
+      <section class="step" data-step="4">
+        <div class="winner-banner">
+          <div class="emoji">🏆</div>
+          <h3>Variant C wins</h3>
+          <p class="mult">2.8× vs. primary on early VV</p>
+        </div>
+
+        <div class="insight-card">
+          <h4>Why this won</h4>
+          <p>
+            Your <strong>15-second</strong> cut outperformed the 45s original on <strong>completion rate</strong> by a wide margin.
+            Viewers in <strong>18–24F, US</strong> rewatched the short cut at <strong>2.1×</strong> the rate of longer versions.
+          </p>
+          <p class="rec">
+            → For trend-style desk content, lead with a compressed hook under ~12s when the payoff is visual.
+          </p>
+        </div>
+
+        <button type="button" class="btn btn-primary" style="margin-top:18px">Queue winner for full distribution</button>
+        <button type="button" class="btn btn-ghost" id="replay">Replay demo</button>
+      </section>
+    </div>
+
+    <div class="step-dots-footer" id="stepFooter" aria-label="Demo steps"></div>
+  </div>
+
+  <script>
+    (function () {
+      var steps = [].slice.call(document.querySelectorAll(".step"));
+      var current = 0;
+      var optIn = document.getElementById("optIn");
+      var toVariants = document.getElementById("toVariants");
+      var variantStrip = document.getElementById("variantStrip");
+      var variantDots = document.querySelectorAll("#variantDots span");
+      var footer = document.getElementById("stepFooter");
+      var countdownEl = document.getElementById("countdown");
+      var progressFill = document.getElementById("progressFill");
+      var timerId = null;
+      var demoSeconds = 5 * 60 + 42; // fake 5:42 remaining for display
+
+      function showStep(i) {
+        current = i;
+        steps.forEach(function (s, j) {
+          s.classList.toggle("active", j === i);
+        });
+        updateFooter();
+        if (i === 3) startDemoTimer();
+        else stopDemoTimer();
+      }
+
+      function updateFooter() {
+        footer.innerHTML = "";
+        for (var s = 0; s < steps.length; s++) {
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = s === current ? "on" : "";
+          b.setAttribute("aria-label", "Step " + (s + 1));
+          b.addEventListener("click", function (idx) {
+            return function () { showStep(idx); };
+          }(s));
+          footer.appendChild(b);
+        }
+      }
+
+      optIn.addEventListener("click", function () {
+        var on = !optIn.classList.contains("on");
+        optIn.classList.toggle("on", on);
+        optIn.setAttribute("aria-pressed", on ? "true" : "false");
+        toVariants.disabled = !on;
+      });
+
+      document.getElementById("toVariants").addEventListener("click", function () {
+        showStep(1);
+      });
+
+      document.querySelector("[data-skip]").addEventListener("click", function () {
+        alert("Demo: you’d continue to the standard post flow.");
+      });
+
+      document.getElementById("toSettings").addEventListener("click", function () {
+        showStep(2);
+      });
+
+      function chipGroup(containerId, single) {
+        var root = document.getElementById(containerId);
+        root.addEventListener("click", function (e) {
+          var t = e.target.closest(".chip");
+          if (!t || !root.contains(t)) return;
+          if (single) {
+            [].forEach.call(root.querySelectorAll(".chip"), function (c) {
+              c.classList.remove("selected");
+            });
+          }
+          t.classList.add("selected");
+        });
+      }
+      chipGroup("windowChips", true);
+      chipGroup("audienceChips", true);
+
+      document.getElementById("startTest").addEventListener("click", function () {
+        var w = document.querySelector("#windowChips .chip.selected");
+        var h = w ? w.getAttribute("data-hours") : "6";
+        document.getElementById("hoursLeft").textContent = h + "h 00m (simulated)";
+        showStep(3);
+      });
+
+      function startDemoTimer() {
+        stopDemoTimer();
+        var start = Date.now();
+        var total = demoSeconds * 1000;
+        function tick() {
+          var elapsed = Date.now() - start;
+          var left = Math.max(0, total - elapsed);
+          var sec = Math.floor(left / 1000);
+          var h = Math.floor(sec / 3600);
+          var m = Math.floor((sec % 3600) / 60);
+          var s = sec % 60;
+          countdownEl.textContent = h + ":" + String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+          var pct = Math.min(100, (elapsed / total) * 100);
+          progressFill.style.width = pct + "%";
+          if (left <= 0) stopDemoTimer();
+        }
+        tick();
+        timerId = setInterval(tick, 250);
+      }
+
+      function stopDemoTimer() {
+        if (timerId) clearInterval(timerId);
+        timerId = null;
+        progressFill.style.width = "0%";
+      }
+
+      document.getElementById("fastForward").addEventListener("click", function () {
+        stopDemoTimer();
+        showStep(4);
+      });
+
+      document.getElementById("replay").addEventListener("click", function () {
+        optIn.classList.remove("on");
+        toVariants.disabled = true;
+        optIn.setAttribute("aria-pressed", "false");
+        showStep(0);
+      });
+
+      if (variantStrip && variantDots.length) {
+        variantStrip.addEventListener("scroll", function () {
+          var card = variantStrip.querySelector(".variant-card");
+          if (!card) return;
+          var w = card.offsetWidth + 12;
+          var i = Math.round(variantStrip.scrollLeft / w);
+          i = Math.max(0, Math.min(variantDots.length - 1, i));
+          variantDots.forEach(function (d, j) {
+            d.classList.toggle("on", j === i);
+          });
+        });
+      }
+
+      updateFooter();
+    })();
+  </script>
+</body>
+</html>
