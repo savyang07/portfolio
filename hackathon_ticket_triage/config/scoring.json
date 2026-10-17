@@ -1,0 +1,94 @@
+{
+  "factors": [
+    {
+      "key": "org_impact",
+      "label": "Organizational Impact",
+      "weight": "multiplier",
+      "max": 4,
+      "levels": {
+        "4": "Entire Organization (100%)",
+        "3": "Service Line / Multiple Departments (80%)",
+        "2": "Single Department (60%)",
+        "1": "Single User or Group (40%)",
+        "0": "No Impact (0%)"
+      }
+    },
+    {
+      "key": "patient_safety",
+      "label": "Patient Impact & Safety Risk",
+      "weight": 8,
+      "max": 4,
+      "levels": {
+        "4": "Direct patient safety risk / PHI exposure",
+        "3": "Clinical decision support affected",
+        "2": "Indirect patient care impact",
+        "1": "Minimal patient exposure",
+        "0": "No patient impact"
+      }
+    },
+    {
+      "key": "compliance",
+      "label": "Compliance & Regulatory",
+      "weight": 7,
+      "max": 4,
+      "levels": {
+        "4": "Immediate regulatory breach / HIPAA violation",
+        "3": "Federal submission deadline at risk (CMS, CDC)",
+        "2": "Internal policy deadline at risk",
+        "1": "Minor compliance exposure",
+        "0": "No compliance concern"
+      }
+    },
+    {
+      "key": "financial",
+      "label": "Financial Impact",
+      "weight": 6,
+      "max": 4,
+      "levels": {
+        "4": ">$1M revenue or penalty exposure",
+        "3": "$100K–$1M exposure",
+        "2": "$10K–$100K exposure",
+        "1": "<$10K or indirect exposure",
+        "0": "No financial impact"
+      }
+    },
+    {
+      "key": "utilization",
+      "label": "Report / Information Utilization",
+      "weight": 4,
+      "max": 4,
+      "levels": {
+        "4": "Used by multiple teams in real-time operations",
+        "3": "Used daily by a key team",
+        "2": "Used weekly by a team",
+        "1": "Used occasionally or by a single user",
+        "0": "Not actively used"
+      }
+    }
+  ],
+  "org_multipliers": {
+    "4": 1.0,
+    "3": 0.8,
+    "2": 0.6,
+    "1": 0.4,
+    "0": 0.0
+  },
+  "thresholds": {
+    "critical_min": 70,
+    "high_min": 50,
+    "medium_min": 30
+  },
+  "labels": {
+    "Critical": "Critical",
+    "High": "High",
+    "Medium": "Medium",
+    "Low": "Low"
+  },
+  "colors": {
+    "Critical": {"fg": "#C8322F", "bg": "#FCE9E8"},
+    "High":     {"fg": "#E07B24", "bg": "#FDF0E4"},
+    "Medium":   {"fg": "#C99A06", "bg": "#FBF5DE"},
+    "Low":      {"fg": "#5E7A8C", "bg": "#EDF2F5"}
+  },
+  "_note": "All weights are placeholders validated for this hackathon demo. Recalibrate against 6 months of historical DE tickets before clinical deployment."
+}
